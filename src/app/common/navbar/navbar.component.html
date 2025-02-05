@@ -1,0 +1,15 @@
+<p-megamenu [model]="items">
+  <ng-template #start>
+    <a routerLink="/forms">
+      <img src="images/forms.jpg" width="60" height="60" fill="none" alt="logo">
+    </a>
+  </ng-template>
+  <ng-template #end>
+    <div>
+      <img [src]="gi(details?.name)" width="50" height="50" alt="profile">
+      <h4>{{details?.name}}</h4>
+    </div>
+    <div class="pi pi-sign-out p-4 cursor-pointer" pTooltip="Logout" tooltipPosition="bottom" routerLink="/logout">
+    </div>
+  </ng-template>
+</p-megamenu>

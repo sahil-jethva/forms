@@ -1,0 +1,16 @@
+<p-card class="flex justify-content-center m-8" [style]="{'width':'50rem'}">
+  <h2 class="flex justify-content-center font-semibold">Logout to forms!</h2>
+  <div class="grid">
+    <div class="flex flex-column md:flex-row">
+      <div class="w-full md:w-5/12 flex justify-content-center align-items-center flex-column gap-3 pl-8  py-5">
+        <img src="images/logout.jpg" width="250" height="250" fill="none" alt="logout">
+      </div>
+      <div class="w-full md:w-2/12 ml-4">
+        <p-divider layout="vertical" class="!hidden md:!flex"></p-divider>
+      </div>
+      <div class="col-6 md:w-5/12 flex justify-content-center align-items-center">
+        <p-button label="logout" icon="pi pi-sign-out" severity="success" routerLink="/" (click)="logout()" [fluid]="true" />
+      </div>
+    </div>
+  </div>
+</p-card>
