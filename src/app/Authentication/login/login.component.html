@@ -1,5 +1,5 @@
 <p-card class="flex justify-content-center m-8" [style]="{'width':'50rem','background-color':'#f2f2f2'}">
-  <h2 class="flex justify-content-center font-semibold">Welcome to login !</h2>
+  <h2 class="flex justify-content-center font-semibold mb-3">Welcome to login !</h2>
   <div class="grid">
     <div class="flex flex-column md:flex-row">
       <form [formGroup]="loginform" (ngSubmit)="login()">
@@ -13,13 +13,14 @@
             <input pInputText id="password" type="password" formControlName="password" />
           </div>
           <div class="flex justify-content-center align-items-center gap-4">
+            <p-toast />
             <p-button type="submit" label="Login" [disabled]="loginform.invalid" icon="pi pi-user" class="w-full" />
           </div>
         </div>
       </form>
       <div class="w-full md:w-2/12 ml-4">
         <p-divider layout="vertical" class="!hidden md:!flex">
-          <b>OR</b>
+          <b style="background-color: #f2f2f2;">OR</b>
         </p-divider>
       </div>
       <div class="col-6 md:w-5/12 flex justify-content-center align-items-center">

@@ -1,0 +1,49 @@
+p-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+}
+
+p-card div {
+  position: relative;
+  width: 100%;
+}
+
+p-card div input {
+  width: 100%;
+  font-size: 32px;
+  border: none;
+  outline: none;
+  background: transparent;
+  position: relative;
+}
+
+p-card div::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background-color: indigo;
+  transition: width 0.2s ease-in, left 0.2s ease-in;
+}
+
+p-card div input:focus + div::after {
+  width: 100%;
+  left: 0;
+  transform: translateX(0);
+}
+
+p-card p::after {
+  position: absolute;
+  bottom: 0;
+  left: 0%;
+  width: 0%;
+  height: 2px;
+  background-color: gray;
+  transition: width 0.2s ease-in, left 0.2s ease-in;
+  transform: translateX(-50%);
+}

@@ -11,3 +11,8 @@ export interface UserLoginDetail {
   password: number
   name: string
 }
+
+export interface City{
+  name: string
+  icon: string
+}

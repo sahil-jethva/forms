@@ -31,6 +31,8 @@ import { MegaMenuModule } from 'primeng/megamenu';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DividerModule } from 'primeng/divider';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TabsModule } from 'primeng/tabs';
 
 
 const PRIME_NG_SHARED_MODULES = [
@@ -64,7 +66,9 @@ const PRIME_NG_SHARED_MODULES = [
   MegaMenuModule,
   IconFieldModule,
   InputIconModule,
-  DividerModule
+  DividerModule,
+  ToolbarModule,
+  TabsModule
 ];
 
 
