@@ -4,10 +4,11 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { City } from '../modals/modal';
 import { CommonModule } from '@angular/common';
+import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-view-forms',
-  imports: [SharedModule, RouterLink, FormsModule,CommonModule],
+  imports: [SharedModule, RouterLink, FormsModule, CommonModule, DragDropModule],
   templateUrl: './view-forms.component.html',
   styleUrl: './view-forms.component.scss'
 })
@@ -64,5 +65,19 @@ export class ViewFormsComponent implements OnInit {
     if (this.questions.length > 1) {
       this.questions.splice(qindex, 1);
     }
+  }
+  duplicateQuestion(qindex: number) {
+    // Perform a deep copy to avoid binding similar variables
+    const duplicate = JSON.parse(JSON.stringify(this.questions[qindex]));
+    this.questions.splice(qindex + 1, 0, duplicate);
+  }
+  /** Drag and Drop for Questions */
+  dropQuestion(event: CdkDragDrop<any[]>) {
+    moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
+  }
+
+  /** Drag and Drop for Options Inside a Question */
+  dropOption(event: CdkDragDrop<any[]>, qindex: number) {
+    moveItemInArray(this.questions[qindex].formInputs, event.previousIndex, event.currentIndex);
   }
 }

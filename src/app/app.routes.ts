@@ -10,7 +10,7 @@ import { ViewFormsComponent } from './view-forms/view-forms.component';
 export const routes: Routes = [
   {path:'', component: LoginComponent, canActivate: [AuthGuardService] },
   {path:'forms', component: FormsComponent, canActivate: [ProtectedAuthGuardService] },
-  {path:'edit',component:ViewFormsComponent, canActivate: [ProtectedAuthGuardService]},
+  {path:'form-edit',component:ViewFormsComponent, canActivate: [ProtectedAuthGuardService]},
   {path:'login',component:LoginComponent},
   {path:'register', component: RegisterComponent },
   {path:'logout',component:LogoutComponent}

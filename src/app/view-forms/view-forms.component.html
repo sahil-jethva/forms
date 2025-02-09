@@ -1,8 +1,8 @@
-<div style="background-color: #ffffff;">
-  <div class="grid">
+<div >
+  <div class="grid" style="background-color: antiquewhite;">
     <div class="col-4 flex justify-content-start align-items-center">
       <a routerLink="/forms" class="cursor-pointer">
-        <img src="images/forms.jpg" width="60" height="60" fill="none" alt="logo">
+        <img src="images/forms.png" width="60" height="60" fill="none" alt="logo">
       </a>
       <div>
         <input type="text" pInputText [(ngModel)]="values"
@@ -17,14 +17,14 @@
     </div>
   </div>
 
-  <div class="grid">
+  <div class="grid" style="background-color: rgb(212, 212, 212);">
     <div class="col-6 col-offset-3 flex justify-content-center">
       <p-tabs [value]="value" style="width: 130px;">
         <p-tablist>
           <p-tab [value]="0" style="font-size: large; color: indigo;">Questions</p-tab>
           <p-tab [value]="1" style="font-size: large; color: indigo;">Response</p-tab>
         </p-tablist>
-        <p-tabpanels>
+        <p-tabpanels style="background-color: rgb(212, 212, 212);">
           <p-tabpanel [value]="0" class="flex gap-3 flex-column">
             <p-card class="justify-content-center"
               [style]="{'width':'800px','height':'150px','margin-right':'-100px','margin-top':'5px'}">
@@ -39,66 +39,11 @@
               </div>
               <p>
             </p-card>
-            <!-- <div class="flex flex-row gap-4">
-              @for (question of questions; track $index) {
-              <p-card class="justify-content-center"
-                [style]="{'width':'800px','height':'auto','margin-left':'-300px','margin-top':'5px'}">
-                <div class="flex flex-row gap-8 mb-5">
-                  <input type="text" pInputText [(ngModel)]="question.text" placeholder="Untitled Questions" style="padding: 16px; font-size: 20px;  width: 500px;  border-bottom: 0.5px solid grey;
-              background-color: rgb(240, 240, 240);  border-radius: 0;  border: 1px solid rgb(240, 240, 240);
-              border-bottom-color: grey;" />
-                  <p-select [options]="cities" appendTo="body" [fluid]="true" [(ngModel)]="question.selectedOption"
-                    (onChange)="updateSelectedOption()" [style]="{'width':'250px' ,'padding':'10px','font-size':'15px'}"
-                    optionLabel="name">
-                    <ng-template let-item pTemplate="item">
-                      <i [class]="item.icon" style="margin-right: 8px;"></i> {{ item.name }}
-                    </ng-template>
-                    <ng-template let-item pTemplate="selectedItem">
-                      <i [class]="item?.icon" style="margin-right: 8px;"></i> {{ item?.name }}
-                    </ng-template>
-                  </p-select>
-                </div>
-                <div class="flex flex-column gap-3">
-                  @for (item of question.formInputs; track $index) {
-                  <div class="flex flex-row gap-1 align-items-center">
-                    @if (question.selectedIcon && question.selectedIcon !== 'pi pi-align-left' && question.selectedIcon !== 'pi pi-align-justify')
-                    {
-                    <i [class]="question.selectedIcon" style="font-size: 16px; color: grey;"></i>
-                    }
-                    <input type="text" pInputText [placeholder]="question.selectedIcon === 'pi pi-align-left' ? 'Short answer text'
-                : question.selectedIcon === 'pi pi-align-justify' ? 'Long answer text'
-                : 'Add Option'" [(ngModel)]="item.addOptions" [ngStyle]="{
-                        'padding': '16px',
-                        'font-size': '15px',
-                        'width': '600px',
-                        'margin-left': question.selectedIcon === 'pi pi-align-justify' || question.selectedIcon === 'pi pi-align-left'?'0px':'10px',
-                        'border-radius': '0',
-                        'border': '1px solid rgb(240, 240, 240)',
-                        'border-bottom': question.selectedIcon === 'pi pi-align-left' || question.selectedIcon === 'pi pi-align-justify' ? '2px dotted grey' : '0.5px solid grey'
-                      }" />
-                    @if(question.selectedIcon !== 'pi pi-align-left' && question.selectedIcon !== 'pi pi-align-justify') {
-                    <i class="pi pi-plus" tooltipPosition="bottom" pTooltip="Add Option" style="cursor: pointer;
-                  margin-left: 10px;
-                  " (click)="cloneInput()"></i>
-                    @if($index>0){
-                    <i class="pi pi-times" tooltipPosition="bottom" pTooltip="Remove Option"
-                      style="cursor: pointer; margin-left: 80px; font-size: 20px;" (click)="removeInput($index)"></i>
-                    }
-                    }
-                  </div>
-                  }
-                </div>
-              </p-card>
-              <p-card [style]="{'width':'50px','height':'auto', 'margin-bottom':'120px'}">
-                <i class="pi pi-plus" (click)="addQuestion()"></i>
-              </p-card>
-            }
-            </div> -->
 
-
-            <div class="flex flex-column gap-4">
-              @for (question of questions; track $index; let qindex = $index; ) {
-              <div class="flex flex-row gap-4">
+            <div cdkDropList [cdkDropListData]="questions" (cdkDropListDropped)="dropQuestion($event)"
+              class="flex flex-column gap-4">
+              @for (question of questions; track $index; let qindex = $index) {
+              <div cdkDrag class="flex flex-row gap-4" style="cursor: grab;">
                 <p-card class="justify-content-center"
                   [style]="{'width':'800px','height':'auto','margin-left':'-300px','margin-top':'5px'}">
 
@@ -106,70 +51,75 @@
                     <input type="text" pInputText [(ngModel)]="question.text" placeholder="Untitled Questions" style="padding: 16px; font-size: 20px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240);
                     border-radius: 0; border: 1px solid rgb(240, 240, 240); border-bottom-color: grey;" />
 
+
                     <p-select [options]="cities" appendTo="body" [fluid]="true" [(ngModel)]="question.selectedOption"
                       (onChange)="updateSelectedOption(qindex)"
                       [style]="{'width':'250px' ,'padding':'10px','font-size':'15px'}" optionLabel="name">
-
                       <ng-template let-item pTemplate="item">
                         <i [class]="item.icon" style="margin-right: 8px;"></i> {{ item.name }}
                       </ng-template>
-
                       <ng-template let-item pTemplate="selectedItem">
                         <i [class]="item?.icon" style="margin-right: 8px;"></i> {{ item?.name }}
                       </ng-template>
-
                     </p-select>
                   </div>
-                  <div class="flex flex-column gap-3">
-                    @for (item of question.formInputs; track $index) {
-                    <div class="flex flex-row gap-1 align-items-center">
-                      @if (question.selectedIcon !== 'pi pi-align-left' && question.selectedIcon !== 'pi
-                      pi-align-justify') {
-                      <i [class]="question.selectedIcon" style="font-size: 16px; color: grey;"></i>
-                      }
-                      <!-- Dynamic Input Field -->
-                      <input type="text" pInputText [placeholder]="question.selectedIcon === 'pi pi-align-left' ? 'Short answer text'
-                        : question.selectedIcon === 'pi pi-align-justify' ? 'Long answer text'
-                        : 'Add Option'" [(ngModel)]="item.addOptions" [ngStyle]="{
-                          'padding': '16px',
-                          'font-size': '15px',
-                          'width': '600px',
-                          'margin-left': question.selectedIcon === 'pi pi-align-justify' || question.selectedIcon === 'pi pi-align-left'?'0px':'10px',
-                          'border-radius': '0',
-                          'border': '1px solid rgb(240, 240, 240)',
-                          'border-bottom': question.selectedIcon === 'pi pi-align-left' || question.selectedIcon === 'pi pi-align-justify' ? '2px dotted grey' : '0.5px solid grey'
-                        }" />
 
-                      @if(question.selectedIcon !== 'pi pi-align-left' && question.selectedIcon !== 'pi
-                      pi-align-justify')
-                      {
 
+                  <div cdkDropList [cdkDropListData]="question.formInputs"
+                    (cdkDropListDropped)="dropOption($event, qindex)" class="flex flex-column gap-3"
+                    style="cursor: grab;">
+
+                    @for (item of question.formInputs; track $index; let i = $index) {
+                    <div class="flex flex-row gap-1 align-items-center" cdkDrag>
+                      <i *ngIf="question.selectedIcon !== 'pi pi-align-left' && question.selectedIcon !== 'pi pi-align-justify'"
+                        [class]="question.selectedIcon" style="font-size: 16px; color: grey;"></i>
+
+
+                      <input type="text" pInputText
+                        [placeholder]="question.selectedIcon === 'pi pi-align-left' ? 'Short answer text' : question.selectedIcon === 'pi pi-align-justify' ? 'Long answer text' : 'Add Option'"
+                        [(ngModel)]="item.addOptions" [ngStyle]="{
+                        'padding': '16px',
+                        'font-size': '15px',
+                        'width': '600px',
+                        'margin-left': question.selectedIcon === 'pi pi-align-justify' || question.selectedIcon === 'pi pi-align-left' ? '0px' : '10px',
+                        'border-radius': '0',
+                        'border': '1px solid rgb(240, 240, 240)',
+                        'border-bottom': question.selectedIcon === 'pi pi-align-left' || question.selectedIcon === 'pi pi-align-justify' ? '2px dotted grey' : '0.5px solid grey'
+                      }" />
+
+
+                      @if (question.selectedIcon !== 'pi pi-align-left'
+                      && question.selectedIcon !== 'pi pi-align-justify') {
                       <i class="pi pi-plus" tooltipPosition="bottom" pTooltip="Add Option"
                         style="cursor: pointer; margin-left: 10px;" (click)="cloneInput(qindex)"></i>
 
-                      @if($index > 0) {
+                      @if (i > 0) {
                       <i class="pi pi-times" tooltipPosition="bottom" pTooltip="Remove Option"
                         style="cursor: pointer; margin-left: 80px; font-size: 20px;"
-                        (click)="removeInput(qindex, $index)"></i>
+                        (click)="removeInput(qindex, i)"></i>
                       }
                       }
-                    </div>
-                    <p-divider layout="horizontal" />
-                    <div class="flex justify-content-end align-items-end">
-                      <i class="pi pi-trash" pTooltip="Delete" tooltipPosition="bottom"
-                        style="cursor: pointer; font-size: 20px; color: red;" (click)="removeQuestion(qindex)"></i>
                     </div>
                     }
                   </div>
+
+                  <p-divider layout="horizontal" />
+                  <div class="flex justify-content-end align-items-end gap-4">
+                    <i class="pi pi-copy" pTooltip="Duplicate question" tooltipPosition="bottom"
+                      style="cursor: pointer; font-size: 20px;" (click)="duplicateQuestion(qindex)" ></i>
+                    <i class="pi pi-trash" pTooltip="Delete question" tooltipPosition="bottom"
+                      style="cursor: pointer; font-size: 20px; color: red;" (click)="removeQuestion(qindex)"></i>
+                  </div>
                 </p-card>
-                <p-card [style]="{'width':'50px','height':'auto' ,'margin-bottom':'200px'}">
-                  <i class="pi pi-plus" pTooltip="Add Quetions" tooltipPosition="right" (click)="addQuestion()"
+
+
+                <p-card [style]="{'width':'50px','height':'auto' ,'margin-bottom':'165px'}">
+                  <i class="pi pi-plus" pTooltip="Add Questions" tooltipPosition="right" (click)="addQuestion()"
                     style="cursor: pointer;"></i>
                 </p-card>
               </div>
               }
             </div>
-
           </p-tabpanel>
           <p-tabpanel [value]="1">
             <p class="m-0">
