@@ -6,7 +6,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipModule } from 'primeng/chip';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
@@ -68,7 +68,8 @@ const PRIME_NG_SHARED_MODULES = [
   InputIconModule,
   DividerModule,
   ToolbarModule,
-  TabsModule
+  TabsModule,
+  ConfirmDialog
 ];
 
 
