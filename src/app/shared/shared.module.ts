@@ -10,7 +10,7 @@ import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroup, InputGroupModule } from 'primeng/inputgroup';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -33,6 +33,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DividerModule } from 'primeng/divider';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TabsModule } from 'primeng/tabs';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { Popover } from 'primeng/popover';
 
 
 const PRIME_NG_SHARED_MODULES = [
@@ -69,7 +71,10 @@ const PRIME_NG_SHARED_MODULES = [
   DividerModule,
   ToolbarModule,
   TabsModule,
-  ConfirmDialog
+  ConfirmDialog,
+  Popover,
+  InputGroup,
+  InputGroupAddonModule
 ];
 
 
