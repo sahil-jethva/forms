@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { QuestionType } from '../modals/modal';
 import { CommonModule } from '@angular/common';
@@ -17,7 +17,7 @@ declare global {
 }
 @Component({
   selector: 'app-view-forms',
-  imports: [SharedModule, RouterLink, FormsModule, ReactiveFormsModule,CommonModule, DragDropModule],
+  imports: [SharedModule, RouterLink, FormsModule, ReactiveFormsModule, CommonModule, DragDropModule],
   templateUrl: './view-forms.component.html',
   styleUrl: './view-forms.component.scss',
   providers: [ConfirmationService, MessageService]
@@ -26,18 +26,19 @@ export class ViewFormsComponent implements OnInit {
 
   value: number = 0;
   options: QuestionType[] | undefined
-
   selectedQuestionIndex: number | null = null;
   selectedOptionIndex: number | null = null;
   isOption: boolean = false;
-  recognition:  any;
+  recognition: any;
+  u_id!: number
   constructor(private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private httpclient: HttpClient,
     private commonService: CommonService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) { }
-  forms!:FormGroup
+  forms!: FormGroup
   ngOnInit() {
     this.forms = this.fb.group({
       form_name: [''],
@@ -56,28 +57,6 @@ export class ViewFormsComponent implements OnInit {
     this.recognition.continuous = false;
     this.recognition.interimResults = false;
 
-    // Handle speech result event
-    this.recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      console.log("Recognized Text:", transcript);
-
-      if (this.isOption && this.selectedQuestionIndex !== null && this.selectedOptionIndex !== null) {
-        this.getOptionsArray(this.selectedQuestionIndex)
-          .at(this.selectedOptionIndex)
-          .get('op_1')
-          ?.setValue(transcript);
-      } else if (this.selectedQuestionIndex !== null) {
-        this.questionsArray
-          .at(this.selectedQuestionIndex)
-          .get('question_name')
-          ?.setValue(transcript);
-      }
-
-      this.isOption = false;
-      this.selectedQuestionIndex = null;
-      this.selectedOptionIndex = null;
-    };
-
     this.recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
     };
@@ -86,25 +65,56 @@ export class ViewFormsComponent implements OnInit {
         this.options = res
       }
     )
+    this.commonService.getMe().subscribe(
+      (res) => {
+        this.u_id = res.user.id
+      }
+    )
   }
+  activeField: { type: 'question_name' | 'op_1', qindex: number, oindex?: number } | null = null;
+
+  setActiveField(type: 'question_name' | 'op_1', qindex: number, oindex?: number) {
+    this.activeField = { type, qindex, oindex };
+    console.log("Active Field:", this.activeField);
+    this.startSpeechRecognition()
+  }
+
   get questionsArray(): FormArray {
     return this.forms.get('questions') as FormArray;
   }
-  getOptionsArray(qIndex: number): FormArray {
-    return this.questionsArray.at(qIndex).get('options') as FormArray;
+  getOptionsArray(qindex: number): FormArray {
+    return this.questionsArray.at(qindex).get('options') as FormArray;
   }
 
-  startSpeechRecognitionForQuestion(qindex: number) {
-    this.selectedQuestionIndex = qindex;
-    this.isOption = false;
+startSpeechRecognition() {
+  if (!this.recognition) return;
+
+  // Check if recognition is running before starting
+  try {
     this.recognition.start();
+  } catch (error) {
+    console.warn("Speech recognition is already running.");
   }
-startSpeechRecognitionForOption(qindex: number, oindex: number) {
-  this.selectedQuestionIndex = qindex;
-  this.selectedOptionIndex = oindex;
-  this.isOption = true;
-  this.recognition.start();
+
+  this.recognition.onresult = (event: any) => {
+    const transcript = event.results[0][0].transcript;
+    console.log("Recognized Text:", transcript);
+
+    if (this.activeField) {
+      if (this.activeField.type === 'question_name') {
+        this.questionsArray.at(this.activeField.qindex).patchValue({ question_name: transcript });
+      } else if (this.activeField.type === 'op_1' && this.activeField.oindex !== undefined) {
+        this.getOptionsArray(this.activeField.qindex).at(this.activeField.oindex).patchValue({ op_1: transcript });
+      }
+    }
+  };
+
+  this.recognition.onerror = (event: any) => {
+    console.error("Speech recognition error:", event.error);
+  };
 }
+
+
   addOption(qindex: number) {
     const optionsArray = this.questionsArray.at(qindex).get('options') as FormArray;
     optionsArray.push(this.createOption());
@@ -141,22 +151,12 @@ startSpeechRecognitionForOption(qindex: number, oindex: number) {
 
     this.questionsArray.push(questionGroup);
   }
-   createOption() {
+  createOption() {
     return this.fb.group({
       op_1: ['']
     });
   }
 
-  duplicateQuestion(qindex: number) {
-    const questionsArray = this.forms.get('questions') as FormArray;
-    const questionToDuplicate = questionsArray.at(qindex).value;
-
-    // Clone the question, ensuring deep copy
-    const duplicate = JSON.parse(JSON.stringify(questionToDuplicate));
-
-    // Insert the duplicate question into the FormArray
-    questionsArray.insert(qindex + 1, this.createQuestionFormGroup(duplicate));
-  }
   createQuestionFormGroup(questionData: any): FormGroup {
     return this.fb.group({
       question_name: [questionData.question_name || ''],
@@ -165,7 +165,7 @@ startSpeechRecognitionForOption(qindex: number, oindex: number) {
         icon: [questionData.question_type?.icon || '']
       }),
       options: this.fb.array(
-        (questionData.options || []).map((option:any) => this.fb.group({ op_1: [option.op_1 || ''] }))
+        (questionData.options || []).map((option: any) => this.fb.group({ op_1: [option.op_1 || ''] }))
       )
     });
   }
@@ -196,7 +196,7 @@ startSpeechRecognitionForOption(qindex: number, oindex: number) {
     });
   }
 
-  publish:boolean = false;
+  publish: boolean = false;
 
   published() {
     const url = `${APIURL}/forms`
@@ -209,8 +209,9 @@ startSpeechRecognitionForOption(qindex: number, oindex: number) {
       }))
     }));
     const requestbody = {
+      createdby_id: this.u_id,
       form_name: formValues.form_name,
-      questions:questionMap
+      questions: questionMap
     }
     console.log(requestbody);
     this.httpclient.post(url, requestbody).subscribe(
@@ -220,5 +221,7 @@ startSpeechRecognitionForOption(qindex: number, oindex: number) {
       }
     )
   }
-
+  navigateToRespoder(){
+    window.open()
+  }
 }
