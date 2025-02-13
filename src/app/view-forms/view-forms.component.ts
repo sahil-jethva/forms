@@ -188,7 +188,7 @@ startSpeechRecognition() {
 
       },
       accept: () => {
-        this.published()
+        this.saveForm()
       },
       reject: () => {
         this.messageService.add({ severity: 'error', summary: 'Canceled', detail: 'You have canceled the form' });
@@ -197,31 +197,44 @@ startSpeechRecognition() {
   }
 
   publish: boolean = false;
-
-  published() {
-    const url = `${APIURL}/forms`
-    const formValues = this.forms.value;
-    const questionMap = formValues.questions.map((question: any) => ({
-      question_name: question.question_name,
-      question_type: typeof question.question_type === 'object' ? question.question_type.name : question.question_type,
-      options: question.options.map((option: any) => ({
-        option_name: option.op_1
-      }))
-    }));
-    const requestbody = {
-      createdby_id: this.u_id,
-      form_name: formValues.form_name,
-      questions: questionMap
-    }
-    console.log(requestbody);
-    this.httpclient.post(url, requestbody).subscribe(
-      (res) => {
-        this.publish = true;
-        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your form has been published!' });
+  formID!:number
+  published(): Promise<number> {
+    return new Promise((resolve) => {
+      const url = `${APIURL}/forms`
+      const formValues = this.forms.value;
+      const questionMap = formValues.questions.map((question: any) => ({
+        question_name: question.question_name,
+        question_type: typeof question.question_type === 'object' ? question.question_type.name : question.question_type,
+        options: question.options.map((option: any) => ({
+          option_name: option.op_1
+        }))
+      }));
+      const requestbody = {
+        createdby_id: this.u_id,
+        form_name: formValues.form_name,
+        questions: questionMap
       }
-    )
+      this.httpclient.post<{id:number}>(url, requestbody).subscribe(
+        (res) => {
+          this.publish = true;
+          this.formID = res.id
+          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your form has been published!' });
+          resolve(this.formID);
+        }
+      )
+    })
   }
+  async saveForm() {
+    try {
+      this.formID = await this.published();
+      console.log("Outside subscribe after response:", this.formID);
+    } catch (error) {
+      console.error("Failed to get form ID:", error);
+    }
+  }
+
   navigateToRespoder(){
-    window.open()
+    // const url = this.router.serializeUrl(this.router.createUrlTree(['/respond-form']));
+    window.open(`/respond-form/${this.formID}`, '_blank');
   }
 }
