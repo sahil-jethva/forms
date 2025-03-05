@@ -35,6 +35,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TabsModule } from 'primeng/tabs';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Popover } from 'primeng/popover';
+import { Image } from 'primeng/image';
+import { RadioButton } from 'primeng/radiobutton';
 
 
 const PRIME_NG_SHARED_MODULES = [
@@ -74,7 +76,9 @@ const PRIME_NG_SHARED_MODULES = [
   ConfirmDialog,
   Popover,
   InputGroup,
-  InputGroupAddonModule
+  InputGroupAddonModule,
+  Image,
+  RadioButton
 ];
 
 

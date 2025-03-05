@@ -13,20 +13,23 @@ export interface UserLoginDetail {
 }
 
 export interface Option {
-  op_1: string
-  op_2?: string
+  option_name: string
 }
 
 export interface Question {
+  q_id?: number
   question_type: string | QuestionType
   question_name: string
   selectedIcon?: string
   options: Option[]
 }
 
-export interface Form {
+export interface Forms {
+  id:number
   form_name: string
+  link:string
   questions: Question[]
+  screenshot: string
 }
 
 

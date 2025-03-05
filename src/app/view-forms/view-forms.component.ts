@@ -9,12 +9,14 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { APIURL } from '../env';
 import { CommonService } from '../services/commonService';
+
 declare global {
   interface Window {
     SpeechRecognition: any;
     webkitSpeechRecognition: any;
   }
 }
+
 @Component({
   selector: 'app-view-forms',
   imports: [SharedModule, RouterLink, FormsModule, ReactiveFormsModule, CommonModule, DragDropModule],
@@ -86,33 +88,33 @@ export class ViewFormsComponent implements OnInit {
     return this.questionsArray.at(qindex).get('options') as FormArray;
   }
 
-startSpeechRecognition() {
-  if (!this.recognition) return;
+  startSpeechRecognition() {
+    if (!this.recognition) return;
 
-  // Check if recognition is running before starting
-  try {
-    this.recognition.start();
-  } catch (error) {
-    console.warn("Speech recognition is already running.");
-  }
-
-  this.recognition.onresult = (event: any) => {
-    const transcript = event.results[0][0].transcript;
-    console.log("Recognized Text:", transcript);
-
-    if (this.activeField) {
-      if (this.activeField.type === 'question_name') {
-        this.questionsArray.at(this.activeField.qindex).patchValue({ question_name: transcript });
-      } else if (this.activeField.type === 'op_1' && this.activeField.oindex !== undefined) {
-        this.getOptionsArray(this.activeField.qindex).at(this.activeField.oindex).patchValue({ op_1: transcript });
-      }
+    // Check if recognition is running before starting
+    try {
+      this.recognition.start();
+    } catch (error) {
+      console.warn("Speech recognition is already running.");
     }
-  };
 
-  this.recognition.onerror = (event: any) => {
-    console.error("Speech recognition error:", event.error);
-  };
-}
+    this.recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      console.log("Recognized Text:", transcript);
+
+      if (this.activeField) {
+        if (this.activeField.type === 'question_name') {
+          this.questionsArray.at(this.activeField.qindex).patchValue({ question_name: transcript });
+        } else if (this.activeField.type === 'op_1' && this.activeField.oindex !== undefined) {
+          this.getOptionsArray(this.activeField.qindex).at(this.activeField.oindex).patchValue({ op_1: transcript });
+        }
+      }
+    };
+
+    this.recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+    };
+  }
 
 
   addOption(qindex: number) {
@@ -197,11 +199,13 @@ startSpeechRecognition() {
   }
 
   publish: boolean = false;
-  formID!:number
+  formID!: number
   published(): Promise<number> {
     return new Promise((resolve) => {
       const url = `${APIURL}/forms`
       const formValues = this.forms.value;
+      const uniqueLink = crypto.randomUUID();
+
       const questionMap = formValues.questions.map((question: any) => ({
         question_name: question.question_name,
         question_type: typeof question.question_type === 'object' ? question.question_type.name : question.question_type,
@@ -212,12 +216,13 @@ startSpeechRecognition() {
       const requestbody = {
         createdby_id: this.u_id,
         form_name: formValues.form_name,
+        link: uniqueLink,
         questions: questionMap
       }
-      this.httpclient.post<{id:number}>(url, requestbody).subscribe(
+      this.httpclient.post<{ id: number }>(url, requestbody).subscribe(
         (res) => {
           this.publish = true;
-          this.formID = res.id
+          this.formID = res.id;
           this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your form has been published!' });
           resolve(this.formID);
         }
@@ -227,14 +232,13 @@ startSpeechRecognition() {
   async saveForm() {
     try {
       this.formID = await this.published();
-      console.log("Outside subscribe after response:", this.formID);
+      sessionStorage.setItem('StoredID', JSON.stringify(this.formID))
     } catch (error) {
       console.error("Failed to get form ID:", error);
     }
   }
 
-  navigateToRespoder(){
-    // const url = this.router.serializeUrl(this.router.createUrlTree(['/respond-form']));
-    window.open(`/respond-form/${this.formID}`, '_blank');
+  navigateToRespoder() {
+    this.router.navigate(['respond-form']);
   }
 }

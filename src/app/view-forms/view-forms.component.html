@@ -1,86 +1,82 @@
-<div class="overflow-hidden surface-overlay">
-  <div class="overflow-auto overflow-x-hidden" style="height: 800px; background-color: rgb(212, 212, 212);">
-    <div class="sticky top-0 z-5 relative grid" style="background-color: antiquewhite;">
-      <div class="col-4 flex justify-content-start align-items-center">
-        <a routerLink="/forms" class="cursor-pointer">
-          <img src="images/forms.png" width="60" height="60" fill="none" alt="logo">
-        </a>
-      </div>
-      <div class="col-4 col-offset-4 p-4 pt-5">
-        <div class="flex justify-content-end gap-3">
-          @if (publish) {
-          <i class="pi pi-link" (click)="navigateToRespoder()" pTooltip="Copy responder link" tooltipPosition="bottom"
-            style="font-size: x-large; color: black; font-weight: bolder; margin-top: 5px; cursor: pointer;"></i>
-          }
-          <p-toast />
-          <p-confirmdialog />
-          <p-button (click)="confirm2($event)" [label]="publish?'Published':'Publish'"
-            [style]="{'background-color':'indigo','border-color':'indigo'}"></p-button>
+<div class="form-container">
+  <div class="overflow-hidden surface-overlay">
+    <div class="overflow-auto overflow-x-hidden" style="height: 800px; background-color: rgb(212, 212, 212);">
+      <div class="sticky top-0 z-5 relative grid" style="background-color: antiquewhite;">
+        <div class="col-4 flex justify-content-start align-items-center">
+          <a routerLink="/forms" class="cursor-pointer">
+            <img src="images/forms.png" width="60" height="60" fill="none" alt="logo">
+          </a>
+        </div>
+        <div class="col-4 col-offset-4 p-4 pt-5">
+          <div class="flex justify-content-end gap-3">
+            @if (publish) {
+            <i class="pi pi-link" (click)="navigateToRespoder()" pTooltip="Copy responder link" tooltipPosition="bottom"
+              style="font-size: x-large; color: black; font-weight: bolder; margin-top: 5px; cursor: pointer;"></i>
+            }
+            <p-toast />
+            <p-confirmdialog />
+            <p-button (click)="confirm2($event)" [label]="publish?'Published':'Publish'"
+              [style]="{'background-color':'indigo','border-color':'indigo'}"></p-button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="grid" style="background-color: rgb(212, 212, 212);">
-      <div class="col-6 col-offset-3 flex justify-content-center">
-        <p-tabs [value]="value" style="width: 130px;">
-          <p-tablist>
-            <p-tab [value]="0"
-              style="font-size: large; color: indigo; background-color:rgb(212, 212, 212);">Questions</p-tab>
-            <p-tab [value]="1"
-              style="font-size: large; color: indigo; background-color:rgb(212, 212, 212);">Response</p-tab>
-          </p-tablist>
-          <p-tabpanels style="background-color: rgb(212, 212, 212);">
-            <p-tabpanel [value]="0" class="flex gap-3 flex-column">
-              <form [formGroup]="forms">
-                <p-card class="justify-content-center"
-                  [style]="{'width':'800px','height':'100px','margin-right':'-100px','margin-top':'5px'}">
-                  <div>
-                    <input type="text" pInputText formControlName="form_name" placeholder="Untitled form"
-                      class="w-full" />
-                  </div>
-                  <div></div>
-                </p-card>
-                <div class="flex flex-column gap-4" formArrayName="questions">
-                  @for (question of questionsArray.controls; track $index; let qindex = $index; ) {
-                  <div class="flex flex-row gap-4" [formGroupName]=qindex>
-                    <p-card class="justify-content-center"
-                      [style]="{'width':'800px','height':'auto','margin-left':'-300px','margin-top':'5px'}">
+      <div class="grid" style="background-color: rgb(212, 212, 212);">
+        <div class="col-6 col-offset-3 flex justify-content-center">
+          <p-tabs [value]="value" style="width: 130px;">
+            <p-tablist>
+              <p-tab [value]="0"
+                style="font-size: large; color: indigo; background-color:rgb(212, 212, 212);">Questions</p-tab>
+              <p-tab [value]="1"
+                style="font-size: large; color: indigo; background-color:rgb(212, 212, 212);">Response</p-tab>
+            </p-tablist>
+            <p-tabpanels style="background-color: rgb(212, 212, 212);">
+              <p-tabpanel [value]="0" class="flex gap-3 flex-column">
+                <form [formGroup]="forms">
+                  <p-card class="justify-content-center"
+                    [style]="{'width':'800px','height':'100px','margin-right':'-100px','margin-top':'5px'}">
+                    <div>
+                      <input type="text" pInputText formControlName="form_name" placeholder="Untitled form"
+                        class="w-full" />
+                    </div>
+                    <div></div>
+                  </p-card>
+                  <div class="flex flex-column gap-4" formArrayName="questions">
+                    @for (question of questionsArray.controls; track $index; let qindex = $index; ) {
+                    <div class="flex flex-row gap-4" [formGroupName]=qindex>
+                      <p-card class="justify-content-center"
+                        [style]="{'width':'800px','height':'auto','margin-left':'-300px','margin-top':'5px'}">
 
-                      <div class="flex flex-row gap-8 mb-3">
-                        <input type="text" pInputText formControlName="question_name" placeholder="Untitled Question"
-                           (focus)="setActiveField('question_name', qindex)" style="padding: 16px; font-size: 20px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240);
+                        <div class="flex flex-row gap-8 mb-3">
+                          <input type="text" pInputText formControlName="question_name" placeholder="Untitled Question"
+                            (focus)="setActiveField('question_name', qindex)" style="padding: 16px; font-size: 20px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240);
                     border-radius: 0; border: 1px solid rgb(240, 240, 240); border-bottom-color: grey;" />
-                        <!-- <p-button type="button" icon="pi pi-microphone" pTooltip="Speech to text your Question"
-                          tooltipPosition="bottom"
-                          [style]="{'background-color':'white','color':'black','font-weight':'bolder','font-size': 'x-large'}"
-                          (click)="startSpeechRecognitionForQuestion(qindex)">
-                        </p-button> -->
-                        <p-select [options]="options" appendTo="body" [fluid]="true" formControlName="question_type"
-                          placeholder="Select question type" (onChange)="updateSelectedOption(qindex)"
-                          [style]="{'width':'250px' ,'padding':'10px','font-size':'15px'}" optionLabel="name">
-                          <ng-template let-item pTemplate="item">
-                            <i [class]="item?.icon" style="margin-right: 8px;"></i> {{ item?.name }}
-                          </ng-template>
-                          <ng-template let-item pTemplate="selectedItem">
-                            <i [class]="item?.icon" style="margin-right: 8px;"></i> {{ item?.name }}
-                          </ng-template>
-                        </p-select>
-                      </div>
+                          <p-select [options]="options" appendTo="body" [fluid]="true" formControlName="question_type"
+                            placeholder="Select question type" (onChange)="updateSelectedOption(qindex)"
+                            [style]="{'width':'250px' ,'padding':'10px','font-size':'15px'}" optionLabel="name">
+                            <ng-template let-item pTemplate="item">
+                              <i [class]="item?.icon" style="margin-right: 8px;"></i> {{ item?.name }}
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                              <i [class]="item?.icon" style="margin-right: 8px;"></i> {{ item?.name }}
+                            </ng-template>
+                          </p-select>
+                        </div>
 
-                      <div class="flex flex-column gap-3 mb-6" formArrayName="options">
+                        <div class="flex flex-column gap-3 mb-6" formArrayName="options">
 
-                        @for (option of getOptionsArray(qindex).controls; track $index; let oindex = $index;) {
-                        <div class="flex flex-row gap-0 align-items-center" [formGroupName]="oindex">
-                          @if (questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-left' &&
-                          questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-justify') {
-                          <i [class]="questionsArray.at(qindex).get('question_type')?.value?.icon"
-                            style="font-size: 16px; color: grey;"></i>
-                          }
-                          <div>
-                            <input type="text" pInputText formControlName="op_1"
-                              (focus)="setActiveField('op_1', qindex, oindex)"
-                              [placeholder]="questionsArray.at(qindex).get('question_type')?.value?.icon === 'pi pi-align-left' ? 'Short answer text' : questionsArray.at(qindex).get('question_type')?.value?.icon === 'pi pi-align-justify' ? 'Long answer text' : 'Add Option'"
-                              [ngStyle]="{
+                          @for (option of getOptionsArray(qindex).controls; track $index; let oindex = $index;) {
+                          <div class="flex flex-row gap-0 align-items-center" [formGroupName]="oindex">
+                            @if (questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-left' &&
+                            questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-justify') {
+                            <i [class]="questionsArray.at(qindex).get('question_type')?.value?.icon"
+                              style="font-size: 16px; color: grey;"></i>
+                            }
+                            <div>
+                              <input type="text" pInputText formControlName="op_1"
+                                (focus)="setActiveField('op_1', qindex, oindex)"
+                                [placeholder]="questionsArray.at(qindex).get('question_type')?.value?.icon === 'pi pi-align-left' ? 'Short answer text' : questionsArray.at(qindex).get('question_type')?.value?.icon === 'pi pi-align-justify' ? 'Long answer text' : 'Add Option'"
+                                [ngStyle]="{
                               'padding': '16px',
                               'font-size': '15px',
                               'width': '600px',
@@ -90,50 +86,47 @@
                               || questionsArray.at(qindex).get('question_type')?.value?.icon === 'pi pi-align-justify' ? '2px dotted grey' : '0.5px solid grey',
                               'border-radius': '0',
                               }" />
-                            <div></div>
+                              <div></div>
+                            </div>
+                            @if (questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-left'
+                            && questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-justify') {
+                            <i class="pi pi-plus" tooltipPosition="bottom" pTooltip="Add Option"
+                              style="cursor: pointer; margin-left: 10px;" (click)="addOption(qindex)"></i>
+                            @if ($index > 0) {
+                            <i class="pi pi-times" tooltipPosition="bottom" pTooltip="Remove Option"
+                              style="cursor: pointer; margin-left: 50px; font-size: 20px;"
+                              (click)="removeOption(qindex, oindex)"></i>
+                            }
+                            }
                           </div>
-                          <!-- <p-button type="button" icon="pi pi-microphone"
-                            [style]="{'background-color':'white','color':'black','font-weight':'bolder','font-size': 'x-large'}"
-                            pTooltip="Speech to text your Options" tooltipPosition="bottom"
-                            (click)="startSpeechRecognitionForOption(qindex, oindex)">
-                          </p-button> -->
-                          @if (questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-left'
-                          && questionsArray.at(qindex).get('question_type')?.value?.icon !== 'pi pi-align-justify') {
-                          <i class="pi pi-plus" tooltipPosition="bottom" pTooltip="Add Option"
-                            style="cursor: pointer; margin-left: 10px;" (click)="addOption(qindex)"></i>
-                          @if ($index > 0) {
-                          <i class="pi pi-times" tooltipPosition="bottom" pTooltip="Remove Option"
-                            style="cursor: pointer; margin-left: 50px; font-size: 20px;"
-                            (click)="removeOption(qindex, oindex)"></i>
-                          }
                           }
                         </div>
-                        }
-                      </div>
-                      <p-divider layout="horizontal" />
-                      <div class="flex justify-content-end align-items-end gap-4">
-                        <i class="pi pi-copy" pTooltip="Duplicate question" tooltipPosition="bottom"
-                          style="cursor: pointer; font-size: 20px;"></i>
-                        <i class="pi pi-trash" pTooltip="Delete question" tooltipPosition="bottom"
-                          style="cursor: pointer; font-size: 20px; color: red;" (click)="removeQuestion(qindex)"></i>
-                      </div>
-                    </p-card>
-                    <p-card [style]="{'width':'50px','height':'auto' ,'margin-bottom':'165px'}">
-                      <i class="pi pi-plus" pTooltip="Add Questions" tooltipPosition="right" (click)="addQuestion()"
-                        style="cursor: pointer;"></i>
-                    </p-card>
+                        <p-divider layout="horizontal" />
+                        <div class="flex justify-content-end align-items-end gap-4">
+                          <i class="pi pi-copy" pTooltip="Duplicate question" tooltipPosition="bottom"
+                            style="cursor: pointer; font-size: 20px;"></i>
+                          <i class="pi pi-trash" pTooltip="Delete question" tooltipPosition="bottom"
+                            style="cursor: pointer; font-size: 20px; color: red;" (click)="removeQuestion(qindex)"></i>
+                        </div>
+                      </p-card>
+                      <p-card [style]="{'width':'50px','height':'auto' ,'margin-bottom':'165px'}">
+                        <i class="pi pi-plus" pTooltip="Add Questions" tooltipPosition="right" (click)="addQuestion()"
+                          style="cursor: pointer;"></i>
+                      </p-card>
+                    </div>
+                    }
                   </div>
-                  }
-                </div>
-              </form>
-            </p-tabpanel>
+                </form>
+              </p-tabpanel>
 
-            <p-tabpanel [value]="1">
-              <p class="m-0">
-              </p>
-            </p-tabpanel>
-          </p-tabpanels>
-        </p-tabs>
+              <p-tabpanel [value]="1">
+                <p class="m-0">
+
+                </p>
+              </p-tabpanel>
+            </p-tabpanels>
+          </p-tabs>
+        </div>
       </div>
     </div>
   </div>

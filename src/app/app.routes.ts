@@ -11,9 +11,8 @@ import { RespondFormsComponent } from './respond-forms/respond-forms.component';
 export const routes: Routes = [
   {path:'', component: LoginComponent, canActivate: [AuthGuardService] },
   {path:'forms', component: FormsComponent, canActivate: [ProtectedAuthGuardService] },
-  { path: 'form-edit', component: ViewFormsComponent, canActivate: [ProtectedAuthGuardService] },
-  { path: 'respond-form', component: RespondFormsComponent },
-  { path: 'respond-form/:formID', component: RespondFormsComponent },
+  {path: 'form-edit', component: ViewFormsComponent, canActivate: [ProtectedAuthGuardService] },
+  {path: 'respond-form', component: RespondFormsComponent },
   {path:'login',component:LoginComponent},
   {path:'register', component: RegisterComponent },
   {path:'logout',component:LogoutComponent}
