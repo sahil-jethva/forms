@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../common/navbar/navbar.component';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 import { HttpClient } from '@angular/common/http';
 import { APIURL } from '../env';
 import { Forms } from '../modals/modal';
+import { CommonService } from '../services/commonService';
 
 @Component({
   selector: 'app-forms',
@@ -15,19 +16,29 @@ import { Forms } from '../modals/modal';
 export class FormsComponent implements OnInit {
 
   allForms!: Forms[]
+  createdID!: number
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router, private commonService: CommonService) { }
 
   ngOnInit() {
-    this.getForms()
+    this.commonService.getMe().subscribe(
+      (res) => {
+        this.createdID = res.user.id
+        this.getForms()
+      }
+    )
   }
   getForms() {
-    const url = `${APIURL}/forms`
+    const url = `${APIURL}/forms/created-by/${this.createdID}`
     this.http.get<Forms[]>(url).subscribe(
       (data) => {
-        console.log(data);
         this.allForms = data
       }
     )
   }
+  clearStoredID() {
+    // sessionStorage.removeItem('StoredID');
+    this.router.navigate(['/form-edit', 'new']);
+  }
+
 }

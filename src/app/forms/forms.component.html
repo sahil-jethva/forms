@@ -2,9 +2,8 @@
 <div class="grid flex flex-column m-8 gap-4 ">
   <div class="col">
     <h2 class="font-normal mb-4">Start a new form</h2>
-    <div class="border-1 hover:border-indigo-400 w-11rem h-9rem pt-6 pl-7 cursor-pointer"
-      style="border-radius: 10px; border-color: #cecaca;" [routerLink]="['/form-edit']"
-      routerLinkActive="router-link-active">
+    <div class="border-1 hover:border-indigo-400 w-11rem h-9rem pt-6 pl-7 cursor-pointer" (click)="clearStoredID()"
+      style="border-radius: 10px; border-color: #cecaca;" routerLinkActive="router-link-active">
       <i class="pi pi-plus text-5xl" style="color: rgb(128, 128, 71);"></i>
     </div>
     <h2 class="mt-4 font-normal">Recent forms</h2>
@@ -12,7 +11,7 @@
   <div class="grid p-5">
     @for (item of allForms; track $index) {
     <div class="col">
-      <p-card [style]="{width: '16rem'}" [routerLink]="['/form-edit',item.id]">
+      <p-card [style]="{'width': '16rem','cursor':'pointer'}" [routerLink]="['/form-edit',item.id]">
         <ng-template #header>
           <img [src]="'data:image/png;base64,' + item.screenshot" width="350" height="186.08" alt="photo"
             class="w-full" />

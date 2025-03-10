@@ -6,6 +6,7 @@ import { Forms, Question } from '../modals/modal';
 import { CommonService } from '../services/commonService';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-respond-forms',
@@ -23,10 +24,15 @@ export class RespondFormsComponent implements OnInit {
   responseForm!: FormGroup
   constructor(private httpclient: HttpClient, private service: CommonService, private fb: FormBuilder,
     private messageService: MessageService,
+    private route:ActivatedRoute
   ) {
-    this.formId = sessionStorage.getItem('StoredID')
+    // this.formId = sessionStorage.getItem('StoredID')
   }
   ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.formId = params.get('id');
+      this.getFormDetail()
+    })
     this.responseForm = this.fb.group({
       SelectChoice: [''],
       selectCheckbox: [''],
@@ -34,7 +40,6 @@ export class RespondFormsComponent implements OnInit {
       shortAnswer: [''],
       longAnswer: ['']
     })
-    this.getFormDetail()
     this.getMe();
   }
 
@@ -47,7 +52,6 @@ export class RespondFormsComponent implements OnInit {
   }
   getFormDetail() {
     const url = `${APIURL}/forms/${this.formId}`
-    console.log(url);
     this.httpclient.get<Forms>(url).subscribe(
       (res) => {
         console.log(res);
@@ -65,6 +69,7 @@ export class RespondFormsComponent implements OnInit {
       responses: this.questions.map(q => ({
         q_id: q.q_id,
         question_name: q.question_name,
+        question_type:q.question_type,
         selected_options:
           q.question_type === 'Short answer' ? this.responseForm.value.shortAnswer :
             q.question_type === 'Long answer' ? this.responseForm.value.longAnswer :

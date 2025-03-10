@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
-import { Router, RouterLink } from '@angular/router';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { QuestionType } from '../modals/modal';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Forms, Question, QuestionType } from '../modals/modal';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -19,7 +19,7 @@ declare global {
 
 @Component({
   selector: 'app-view-forms',
-  imports: [SharedModule, RouterLink, FormsModule, ReactiveFormsModule, CommonModule, DragDropModule],
+  imports: [SharedModule, RouterLink, ReactiveFormsModule, CommonModule, DragDropModule],
   templateUrl: './view-forms.component.html',
   styleUrl: './view-forms.component.scss',
   providers: [ConfirmationService, MessageService]
@@ -38,9 +38,14 @@ export class ViewFormsComponent implements OnInit {
     private httpclient: HttpClient,
     private commonService: CommonService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
   forms!: FormGroup
+  publish: boolean = false;
+  formID!: number
+  formData!: Forms;
+
   ngOnInit() {
     this.forms = this.fb.group({
       form_name: [''],
@@ -48,12 +53,18 @@ export class ViewFormsComponent implements OnInit {
     });
     this.addQuestion();
 
+    this.route.paramMap.subscribe(params => {
+      this.formID = params.get('id') ? Number(params.get('id')) : Number(params.get('id'));
+      if (this.formID) {
+        this.getFormById(this.formID);
+      }
+    });
+
     const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Speech recognition is not supported in this browser.");
       return;
     }
-
     this.recognition = new SpeechRecognition();
     this.recognition.lang = "en-US";
     this.recognition.continuous = false;
@@ -73,19 +84,40 @@ export class ViewFormsComponent implements OnInit {
       }
     )
   }
-  activeField: { type: 'question_name' | 'op_1', qindex: number, oindex?: number } | null = null;
 
-  setActiveField(type: 'question_name' | 'op_1', qindex: number, oindex?: number) {
+  getFormById(id: number) {
+    const url = `${APIURL}/forms/${id}`;
+    this.httpclient.get<Forms>(url).subscribe(
+      (data) => {
+        this.formData = data;
+        this.populateForm(this.formData);
+      }
+    );
+  }
+
+  populateForm(form: Forms) {
+    this.publish = true;
+    this.forms = this.fb.group({
+      form_name: form.form_name,
+      questions: this.fb.array(
+        form.questions?.map(q => this.createQuestionFormGroup(q)) || []
+      )
+    });
+  }
+
+  activeField: { type: 'question_name' | 'option_name', qindex: number, oindex?: number } | null = null;
+
+  setActiveField(type: 'question_name' | 'option_name', qindex: number, oindex?: number) {
     this.activeField = { type, qindex, oindex };
     console.log("Active Field:", this.activeField);
     this.startSpeechRecognition()
   }
 
   get questionsArray(): FormArray {
-    return this.forms.get('questions') as FormArray;
+    return this.forms?.get('questions') as FormArray;
   }
   getOptionsArray(qindex: number): FormArray {
-    return this.questionsArray.at(qindex).get('options') as FormArray;
+    return this.questionsArray?.at(qindex).get('options') as FormArray;
   }
 
   startSpeechRecognition() {
@@ -105,8 +137,8 @@ export class ViewFormsComponent implements OnInit {
       if (this.activeField) {
         if (this.activeField.type === 'question_name') {
           this.questionsArray.at(this.activeField.qindex).patchValue({ question_name: transcript });
-        } else if (this.activeField.type === 'op_1' && this.activeField.oindex !== undefined) {
-          this.getOptionsArray(this.activeField.qindex).at(this.activeField.oindex).patchValue({ op_1: transcript });
+        } else if (this.activeField.type === 'option_name' && this.activeField.oindex !== undefined) {
+          this.getOptionsArray(this.activeField.qindex).at(this.activeField.oindex).patchValue({ option_name: transcript });
         }
       }
     };
@@ -132,17 +164,13 @@ export class ViewFormsComponent implements OnInit {
 
   updateSelectedOption(qindex: number) {
     const selectedOption = this.questionsArray.at(qindex).get('question_type')?.value;
-
     if (selectedOption && typeof selectedOption === 'object') {
       this.questionsArray.at(qindex).get('question_type')?.patchValue({
         name: selectedOption.name,
         icon: selectedOption.icon
       });
     }
-
   }
-
-
 
   addQuestion() {
     const questionGroup = this.fb.group({
@@ -155,19 +183,27 @@ export class ViewFormsComponent implements OnInit {
   }
   createOption() {
     return this.fb.group({
-      op_1: ['']
+      option_name: ['']
     });
   }
+
+
+  // createQuestionFormGroup(questionData: any): FormGroup {
+  //   return this.fb.group({
+  //     question_name: [questionData.question_name || ''],
+  //     question_type: [this.options?.find(opt => opt.name === questionData.question_type.name) || ''],
+  //     options: this.fb.array(
+  //       (questionData.options || []).map((option: any) => this.fb.group({ op_1: [option.option_name || ''] }))
+  //     )
+  //   });
+  // }
 
   createQuestionFormGroup(questionData: any): FormGroup {
     return this.fb.group({
       question_name: [questionData.question_name || ''],
-      question_type: this.fb.group({
-        name: [questionData.question_type?.name || ''],
-        icon: [questionData.question_type?.icon || '']
-      }),
+      question_type: [this.options?.find(opt => opt.name === questionData.question_type) || null], // Ensure correct object binding
       options: this.fb.array(
-        (questionData.options || []).map((option: any) => this.fb.group({ op_1: [option.op_1 || ''] }))
+        (questionData.options || []).map((option: any) => this.fb.group({ option_name: [option.option_name || ''] }))
       )
     });
   }
@@ -198,37 +234,105 @@ export class ViewFormsComponent implements OnInit {
     });
   }
 
-  publish: boolean = false;
-  formID!: number
+  // published(): Promise<number> {
+  //   return new Promise((resolve) => {
+  //     const url = `${APIURL}/forms`
+  //     const formValues = this.forms.value;
+
+  //     const questionMap = formValues.questions.map((question: any) => ({
+  //       question_name: question.question_name,
+  //       question_type: typeof question.question_type === 'object' ? question.question_type.name : question.question_type,
+  //       options: question.options.map((option: any) => ({
+  //         option_name: option.option_name
+  //       }))
+  //     }));
+  //     const requestbody = {
+  //       createdby_id: this.u_id,
+  //       form_name: formValues.form_name,
+  //       questions: questionMap
+  //     }
+  //     // if (this.formID) {
+  //     // } else {
+  //       this.httpclient.post<{ id: number }>(url, requestbody).subscribe(
+  //         (res) => {
+  //           this.publish = true;
+  //           this.formID = res.id;
+  //           this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your form has been published!' });
+  //           resolve(this.formID);
+  //         }
+  //       )
+  //     // }
+  //   })
+  // }
+
+
   published(): Promise<number> {
     return new Promise((resolve) => {
-      const url = `${APIURL}/forms`
+      const url = this.formID ? `${APIURL}/forms/${this.formID}` : `${APIURL}/forms`;
       const formValues = this.forms.value;
-      const uniqueLink = crypto.randomUUID();
 
-      const questionMap = formValues.questions.map((question: any) => ({
-        question_name: question.question_name,
-        question_type: typeof question.question_type === 'object' ? question.question_type.name : question.question_type,
-        options: question.options.map((option: any) => ({
-          option_name: option.op_1
-        }))
-      }));
-      const requestbody = {
-        createdby_id: this.u_id,
-        form_name: formValues.form_name,
-        link: uniqueLink,
-        questions: questionMap
+      if (this.formID) {
+        this.httpclient.get<any>(url).subscribe(existingForm => {
+          const updatedQuestions = formValues.questions.map((question: any, index: number) => {
+            const existingQuestion = existingForm.questions[index];
+
+            return {
+              q_id: existingQuestion?.q_id || index + 1,
+              question_name: question?.question_name,
+              question_type: question?.question_type
+                ? (typeof question?.question_type === 'object' ? question?.question_type?.name : question?.question_type)
+                : existingQuestion?.question_type,
+              options: question?.options?.map((option: any) => ({
+                option_name: option?.option_name
+              }))
+            };
+          });
+
+          const requestBody = {
+            createdby_id: this.u_id,
+            form_name: formValues.form_name,
+            questions: updatedQuestions
+          };
+
+          this.httpclient.put<{ id: number }>(url, requestBody).subscribe(
+            (res) => {
+              this.publish = true;
+              this.messageService.add({ severity: 'info', summary: 'Updated', detail: 'Your form has been updated!' });
+              resolve(this.formID);
+            }
+          );
+        });
+      } else {
+        // Handle new form (POST request)
+        const questionMap = formValues.questions.map((question: any) => ({
+          question_name: question?.question_name,
+          question_type: typeof question?.question_type === 'object' ? question?.question_type?.name : question?.question_type,
+          options: question?.options?.map((option: any) => ({
+            option_name: option?.option_name
+          }))
+        }));
+
+        const requestBody = {
+          createdby_id: this.u_id,
+          form_name: formValues.form_name,
+          questions: questionMap
+        };
+
+        this.httpclient.post<{ id: number }>(url, requestBody).subscribe(
+          (res) => {
+            this.publish = true;
+            this.formID = res.id;
+            this.messageService.add({ severity: 'info', summary: 'Published', detail: 'Your form has been published!' });
+            resolve(this.formID);
+          }
+        );
       }
-      this.httpclient.post<{ id: number }>(url, requestbody).subscribe(
-        (res) => {
-          this.publish = true;
-          this.formID = res.id;
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Your form has been published!' });
-          resolve(this.formID);
-        }
-      )
-    })
+    });
   }
+
+
+
+
   async saveForm() {
     try {
       this.formID = await this.published();
@@ -239,6 +343,33 @@ export class ViewFormsComponent implements OnInit {
   }
 
   navigateToRespoder() {
-    this.router.navigate(['respond-form']);
+    this.router.navigate(['/respond-form',this.formID]);
+  }
+
+  questions: Question[] = []
+  formName!: string
+  getFormDetail() {
+    const url = `${APIURL}/forms/${this.formID}`
+    console.log(url);
+    this.httpclient.get<Forms>(url).subscribe(
+      (res) => {
+        console.log(res);
+        this.questions = res.questions
+        this.formName = res.form_name
+      }
+    )
   }
 }
+
+// createQuestionFormGroup(questionData: any): FormGroup {
+//   return this.fb.group({
+//     question_name: [questionData.question_name || ''],
+//     question_type: this.fb.group({
+//       name: [questionData.question_type?.name || ''],
+//       icon: [questionData.question_type?.icon || '']
+//     }),
+//     options: this.fb.array(
+//       (questionData.options || []).map((option: any) => this.fb.group({ op_1: [option.option_name || ''] }))
+//     )
+//   });
+// }
