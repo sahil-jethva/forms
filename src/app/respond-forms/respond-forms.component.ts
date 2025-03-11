@@ -13,7 +13,7 @@ import { ActivatedRoute } from '@angular/router';
   imports: [SharedModule, ReactiveFormsModule, FormsModule],
   templateUrl: './respond-forms.component.html',
   styleUrl: './respond-forms.component.scss',
-  providers: [ MessageService]
+  providers: [MessageService]
 })
 export class RespondFormsComponent implements OnInit {
 
@@ -24,7 +24,7 @@ export class RespondFormsComponent implements OnInit {
   responseForm!: FormGroup
   constructor(private httpclient: HttpClient, private service: CommonService, private fb: FormBuilder,
     private messageService: MessageService,
-    private route:ActivatedRoute
+    private route: ActivatedRoute
   ) {
     // this.formId = sessionStorage.getItem('StoredID')
   }
@@ -69,7 +69,7 @@ export class RespondFormsComponent implements OnInit {
       responses: this.questions.map(q => ({
         q_id: q.q_id,
         question_name: q.question_name,
-        question_type:q.question_type,
+        question_type: q.question_type,
         selected_options:
           q.question_type === 'Short answer' ? this.responseForm.value.shortAnswer :
             q.question_type === 'Long answer' ? this.responseForm.value.longAnswer :

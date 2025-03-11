@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Forms, Question, QuestionType } from '../modals/modal';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Forms, Question, QuestionType, Responses } from '../modals/modal';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -19,7 +19,7 @@ declare global {
 
 @Component({
   selector: 'app-view-forms',
-  imports: [SharedModule, RouterLink, ReactiveFormsModule, CommonModule, DragDropModule],
+  imports: [SharedModule, RouterLink, ReactiveFormsModule, FormsModule, CommonModule, DragDropModule],
   templateUrl: './view-forms.component.html',
   styleUrl: './view-forms.component.scss',
   providers: [ConfirmationService, MessageService]
@@ -28,11 +28,13 @@ export class ViewFormsComponent implements OnInit {
 
   value: number = 0;
   options: QuestionType[] | undefined
-  selectedQuestionIndex: number | null = null;
-  selectedOptionIndex: number | null = null;
-  isOption: boolean = false;
   recognition: any;
   u_id!: number
+  forms!: FormGroup
+  publish: boolean = false;
+  formID!: number
+  formData!: Forms;
+
   constructor(private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private httpclient: HttpClient,
@@ -41,10 +43,6 @@ export class ViewFormsComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) { }
-  forms!: FormGroup
-  publish: boolean = false;
-  formID!: number
-  formData!: Forms;
 
   ngOnInit() {
     this.forms = this.fb.group({
@@ -83,6 +81,7 @@ export class ViewFormsComponent implements OnInit {
         this.u_id = res.user.id
       }
     )
+    this.getFormDetail()
   }
 
   getFormById(id: number) {
@@ -98,7 +97,7 @@ export class ViewFormsComponent implements OnInit {
   populateForm(form: Forms) {
     this.publish = true;
     this.forms = this.fb.group({
-      form_name: form.form_name,
+      form_name: [form.form_name],
       questions: this.fb.array(
         form.questions?.map(q => this.createQuestionFormGroup(q)) || []
       )
@@ -117,7 +116,7 @@ export class ViewFormsComponent implements OnInit {
     return this.forms?.get('questions') as FormArray;
   }
   getOptionsArray(qindex: number): FormArray {
-    return this.questionsArray?.at(qindex).get('options') as FormArray;
+    return this.questionsArray?.at(qindex).get('option_name') as FormArray;
   }
 
   startSpeechRecognition() {
@@ -150,7 +149,7 @@ export class ViewFormsComponent implements OnInit {
 
 
   addOption(qindex: number) {
-    const optionsArray = this.questionsArray.at(qindex).get('options') as FormArray;
+    const optionsArray = this.questionsArray.at(qindex).get('option_name') as FormArray;
     optionsArray.push(this.createOption());
   }
 
@@ -158,7 +157,7 @@ export class ViewFormsComponent implements OnInit {
     this.questionsArray.removeAt(qindex);
   }
   removeOption(qindex: number, oIndex: number) {
-    const optionsArray = this.questionsArray.at(qindex).get('options') as FormArray;
+    const optionsArray = this.questionsArray.at(qindex).get('option_name') as FormArray;
     optionsArray.removeAt(oIndex);
   }
 
@@ -187,21 +186,10 @@ export class ViewFormsComponent implements OnInit {
     });
   }
 
-
-  // createQuestionFormGroup(questionData: any): FormGroup {
-  //   return this.fb.group({
-  //     question_name: [questionData.question_name || ''],
-  //     question_type: [this.options?.find(opt => opt.name === questionData.question_type.name) || ''],
-  //     options: this.fb.array(
-  //       (questionData.options || []).map((option: any) => this.fb.group({ op_1: [option.option_name || ''] }))
-  //     )
-  //   });
-  // }
-
   createQuestionFormGroup(questionData: any): FormGroup {
     return this.fb.group({
       question_name: [questionData.question_name || ''],
-      question_type: [this.options?.find(opt => opt.name === questionData.question_type) || null], // Ensure correct object binding
+      question_type: [this.options?.find(opt => opt.name === questionData.question_type) || null],
       options: this.fb.array(
         (questionData.options || []).map((option: any) => this.fb.group({ option_name: [option.option_name || ''] }))
       )
@@ -330,9 +318,6 @@ export class ViewFormsComponent implements OnInit {
     });
   }
 
-
-
-
   async saveForm() {
     try {
       this.formID = await this.published();
@@ -343,21 +328,107 @@ export class ViewFormsComponent implements OnInit {
   }
 
   navigateToRespoder() {
-    this.router.navigate(['/respond-form',this.formID]);
+    this.router.navigate(['respond-form', this.formID]);
   }
 
-  questions: Question[] = []
+  questions: Responses[] = []
   formName!: string
+
   getFormDetail() {
     const url = `${APIURL}/forms/${this.formID}`
     console.log(url);
     this.httpclient.get<Forms>(url).subscribe(
       (res) => {
         console.log(res);
-        this.questions = res.questions
+        this.questions = res.responses
         this.formName = res.form_name
+        this.questionType = res.questions;
+        this.bindDropdownValue();
+        this.bindCheckboxValues()
       }
     )
+  }
+  questionType: Question[] = []
+  dropdownOptions: { option_name: string }[] = [];
+  selectedDropdownValue!: string;
+
+  // bindDropdownValue() {
+  //   const dropdownQuestion = this.questionType.find(ques => ques.question_type === 'Dropdown');
+  //   console.log(dropdownQuestion);
+
+  //   if (dropdownQuestion) {
+  //     const response = this.formData.responses
+  //       .flatMap(res => res.responses)
+  //       .find(resp => resp.q_id === dropdownQuestion.q_id);
+
+  //     if (response) {
+  //       this.selectedDropdownValue = response.selected_options;
+  //       console.log(this.selectedDropdownValue);
+  //       this.dropdownOptions = dropdownQuestion.options;
+  //     }
+  //   }
+  // }
+  bindDropdownValue() {
+    const dropdownQuestion = this.questionType.find(q => q.question_type === 'Dropdown');
+    console.log('Dropdown Question:', dropdownQuestion);
+    if (dropdownQuestion) {
+      // Ensure options are correctly assigned
+      this.dropdownOptions = (dropdownQuestion.options ?? []) as { option_name: string }[];
+      console.log('Dropdown Options:', this.dropdownOptions);
+
+      const response = this.formData.responses
+        .flatMap(res => res.responses)
+        .find(resp => resp.q_id === dropdownQuestion.q_id);
+
+      if (response) {
+        console.log('Response selected_options:', response.selected_options);
+
+        // Delay setting the selected value to ensure dropdown options are set first
+        setTimeout(() => {
+          this.selectedDropdownValue = response.selected_options;
+          console.log('Final Selected Value:', this.selectedDropdownValue);
+        });
+      }
+    }
+  }
+
+  checkboxOptions: string[] = [];
+  selectedCheckboxValues: { [key: string]: boolean } = {};
+
+  bindCheckboxValues() {
+    const checkboxQuestion = this.questionType.find(q => q.question_type === 'Checkbox');
+    console.log('Checkbox Question:', checkboxQuestion);
+
+    if (checkboxQuestion) {
+      this.checkboxOptions = checkboxQuestion.options.map(opt => opt.option_name);
+      console.log('Checkbox Options:', this.checkboxOptions);
+
+      const response = this.formData.responses
+        .flatMap(res => res.responses)
+        .find(resp => resp.q_id === checkboxQuestion.q_id);
+
+      if (response) {
+        console.log('Response selected_options:', response.selected_options);
+
+        if (Array.isArray(response.selected_options)) {
+          this.selectedCheckboxValues = this.checkboxOptions.reduce((acc, option) => {
+            acc[option] = response.selected_options.includes(option);
+            return acc;
+          }, {} as { [key: string]: boolean });
+        }
+
+        console.log('Final Selected Checkboxes:', this.selectedCheckboxValues);
+      }
+    }
+  }
+
+  first: number = 0;
+
+  rows: number = 10;
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
   }
 }
 

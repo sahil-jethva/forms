@@ -22,6 +22,7 @@ export interface Question {
   question_name: string
   selectedIcon?: string
   options: Option[]
+  responses?: Responses[];
 }
 
 export interface Forms {
@@ -29,9 +30,20 @@ export interface Forms {
   form_name: string
   link:string
   questions: Question[]
-  screenshot: string
+  responses:Responses[]
 }
 
+export interface Responsess{
+  q_id: number
+  question_name: string
+  question_type: string
+  selected_options: string
+}
+
+export interface Responses{
+  form_id: number
+  responses: Responsess[]
+}
 
 export interface QuestionType{
   name: string
