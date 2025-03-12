@@ -42,8 +42,6 @@
                     <div>
                       <input type="text" pInputText placeholder="Untitled form" formControlName="form_name"
                         class="w-full" />
-                      <input type="text" pInputText placeholder="Untitled form" formControlName="form_name"
-                        class="w-full" />
                     </div>
                     <div></div>
                   </p-card>
@@ -141,15 +139,10 @@
                     <p-card [style]="{'width':'600px'}">
                       @for (response of item.responses; track $index) {
                       <h3 class="font-medium mb-4">{{response.question_name}}</h3>
+
                       @switch (response.question_type) {
-
-
-
                       @case ('Multiple choice') {
                       <div class="flex flex-row gap-2">
-                        <p-radiobutton class="mb-3" [value]="response.selected_options"
-                          [(ngModel)]="response.selected_options" />
-                        <label>{{ response.selected_options }}</label>
                         <p-radiobutton class="mb-3" [value]="response.selected_options"
                           [(ngModel)]="response.selected_options" />
                         <label>{{ response.selected_options }}</label>
@@ -161,8 +154,6 @@
                       <div class="flex flex-row gap-2">
                         <p-checkbox class="mb-3" [(ngModel)]="selectedCheckboxValues[checkbox]" [binary]="true" />
                         <label>{{ checkbox }}</label>
-                        <p-checkbox class="mb-3" [(ngModel)]="selectedCheckboxValues[checkbox]" [binary]="true" />
-                        <label>{{ checkbox }}</label>
                       </div>
                       }
                       }
@@ -172,29 +163,25 @@
                         <p-select [fluid]="true" class="w-14rem" appendTo="body" [options]="dropdownOptions"
                           [(ngModel)]="selectedDropdownValue" optionLabel="option_name" dataKey="option_name"
                           placeholder="Select" />
-
                       </div>
                       }
 
-
                       @case ('Short answer') {
                       <input type="text" [value]="response.selected_options" [(ngModel)]="response.selected_options"
-                        pInputText placeholder="Short answer" class="w-full"/>
-
+                        pInputText placeholder="Short answer" class="w-full"
+                        style="padding: 16px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240); border-radius: 0; border: 1px solid rgb(240, 240, 240); border-bottom-color: grey;" />
                       }
-
 
                       @case ('Paragraph') {
                       <input type="text" [value]="response.selected_options" [(ngModel)]="response.selected_options"
-                        pInputText placeholder="Long answer" class="w-full"/>
-
+                        pInputText placeholder="Long answer" class="w-full"
+                        style="padding: 16px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240); border-radius: 0; border: 1px solid rgb(240, 240, 240); border-bottom-color: grey;" />
                       }
                       @default {
                       <p>Unknown question type</p>
                       }
                       }
                       }
-
                     </p-card>
                     }
                     <p-toast />
