@@ -35,6 +35,7 @@ export class ViewFormsComponent implements OnInit {
   formID!: number
   formData!: Forms;
 
+
   constructor(private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private httpclient: HttpClient,
@@ -82,6 +83,7 @@ export class ViewFormsComponent implements OnInit {
         this.u_id = res.user.id
       }
     )
+    this.getFormDetail()
   }
 
   getFormById(id: number) {
@@ -116,7 +118,7 @@ export class ViewFormsComponent implements OnInit {
     return this.forms?.get('questions') as FormArray;
   }
   getOptionsArray(qindex: number): FormArray {
-    return this.questionsArray?.at(qindex).get('options') as FormArray;
+    return this.questionsArray?.at(qindex).get('option_name') as FormArray;
   }
 
   startSpeechRecognition() {
@@ -329,10 +331,12 @@ export class ViewFormsComponent implements OnInit {
 
   navigateToRespoder() {
     this.router.navigate(['respond-form', this.formID]);
+    this.router.navigate(['respond-form', this.formID]);
   }
 
   questions: Responses[] = []
   formName!: string
+
 
   getFormDetail() {
     const url = `${APIURL}/forms/${this.formID}`
@@ -341,7 +345,11 @@ export class ViewFormsComponent implements OnInit {
       (res) => {
         console.log(res);
         this.questions = res.responses
+        this.questions = res.responses
         this.formName = res.form_name
+        this.questionType = res.questions;
+        this.bindDropdownValue();
+        this.bindCheckboxValues()
         this.questionType = res.questions;
         this.bindDropdownValue();
         this.bindCheckboxValues()
