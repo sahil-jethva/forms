@@ -40,7 +40,8 @@
                   <p-card class="justify-content-center"
                     [style]="{'width':'800px','height':'100px','margin-right':'-100px','margin-top':'5px'}">
                     <div>
-                      <input type="text" pInputText placeholder="Untitled form" class="w-full" />
+                      <input type="text" pInputText placeholder="Untitled form" formControlName="form_name"
+                        class="w-full" />
                     </div>
                     <div></div>
                   </p-card>
@@ -127,48 +128,59 @@
                 <div class="flex flex-column justify-content-center align-items-center gap-4">
 
                   <p-card [style]="{'width':'600px'}">
+                    <h2 class="font-semibold mb-4">{{questions.length || 0}} responses</h2>
+                  </p-card>
+                  <p-card [style]="{'width':'600px'}">
                     <h2 class="font-semibold mb-4">{{formName}}</h2>
                   </p-card>
 
                   <div class="flex flex-column gap-3">
                     @for (item of questions; track $index) {
                     <p-card [style]="{'width':'600px'}">
-                      <h3 class="font-medium mb-4">{{item.question_name}}</h3>
-                      @switch (item.question_type) {
+                      @for (response of item.responses; track $index) {
+                      <h3 class="font-medium mb-4">{{response.question_name}}</h3>
+                      @switch (response.question_type) {
+
                       @case ('Multiple choice') {
-                      @for (choice of item.options; track $index) {
                       <div class="flex flex-row gap-2">
-                        <p-radiobutton  class="mb-3" />
-                        <label [for]="choice.option_name">{{ choice.option_name }}</label>
+                        <p-radiobutton class="mb-3" [value]="response.selected_options"
+                          [(ngModel)]="response.selected_options" />
+                        <label>{{ response.selected_options }}</label>
                       </div>
-                      }
                       }
 
                       @case ('Checkbox') {
-                      @for (checkbox of item.options; track $index) {
+                      @for (checkbox of response.selected_options; track $index) {
                       <div class="flex flex-row gap-2">
-                        <p-checkbox class="mb-3" [inputId]="checkbox.option_name" />
-                        <label [for]="checkbox.option_name">{{ checkbox.option_name }}</label>
+                        <p-checkbox class="mb-3" [(ngModel)]="selectedCheckboxValues[checkbox]" [binary]="true" />
+                        <label>{{ checkbox }}</label>
                       </div>
                       }
                       }
 
                       @case ('Dropdown') {
                       <div class="flex flex-row gap-2">
-                        <p-select [options]="item.options" [fluid]="true" class="w-14rem" appendTo="body"
-                          optionLabel="option_name" placeholder="Select" />
+                        <p-select [fluid]="true" class="w-14rem" appendTo="body" [options]="dropdownOptions"
+                          [(ngModel)]="selectedDropdownValue" optionLabel="option_name" dataKey="option_name"
+                          placeholder="Select" />
+
                       </div>
                       }
+
                       @case ('Short answer') {
-                      <input type="text" pInputText placeholder="Short answer" class="w-full"
+                      <input type="text" [value]="response.selected_options" [(ngModel)]="response.selected_options"
+                        pInputText placeholder="Short answer" class="w-full"
                         style="padding: 16px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240); border-radius: 0; border: 1px solid rgb(240, 240, 240); border-bottom-color: grey;" />
                       }
+
                       @case ('Paragraph') {
-                      <input type="text" pInputText placeholder="Long answer" class="w-full"
+                      <input type="text" [value]="response.selected_options" [(ngModel)]="response.selected_options"
+                        pInputText placeholder="Long answer" class="w-full"
                         style="padding: 16px; width: 500px; border-bottom: 0.5px solid grey; background-color: rgb(240, 240, 240); border-radius: 0; border: 1px solid rgb(240, 240, 240); border-bottom-color: grey;" />
                       }
                       @default {
                       <p>Unknown question type</p>
+                      }
                       }
                       }
                     </p-card>

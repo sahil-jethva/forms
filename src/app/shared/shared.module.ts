@@ -37,6 +37,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Popover } from 'primeng/popover';
 import { Image } from 'primeng/image';
 import { RadioButton } from 'primeng/radiobutton';
+import { PaginatorModule } from 'primeng/paginator';
 
 
 const PRIME_NG_SHARED_MODULES = [
@@ -78,7 +79,8 @@ const PRIME_NG_SHARED_MODULES = [
   InputGroup,
   InputGroupAddonModule,
   Image,
-  RadioButton
+  RadioButton,
+  PaginatorModule
 ];
 
 
